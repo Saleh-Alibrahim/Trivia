@@ -9,6 +9,7 @@ app = Flask(__name__)
 setup_db(app)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+
 QUESTIONS_PER_PAGE = 10
 
 
@@ -60,7 +61,6 @@ def retrieve_questions():
         result = []
         for category in categorysList:
             result.append(category.format())
-        print(len(questionsList))
         return jsonify({
             'questions': current_questions,
             'total_questions': len(questionsList),
@@ -74,17 +74,16 @@ def retrieve_questions():
 
 @ app.route('/questions/<int:question_id>', methods=["DELETE"])
 def delete_question(question_id):
+    question = Question.query.filter_by(id=question_id).one_or_none()
+    if question is None:
+        abort(404)
     try:
-        question = Question.query.filter_by(id=question_id).one_or_none()
-        if question is None:
-            abort(404)
-
         question.delete()
         questions = retrieve_questions()
         return questions
     except Exception as error:
         print(error)
-        abort(422)
+        abort(405)
 
 
 @app.route('/questions', methods=["POST"])
@@ -94,7 +93,6 @@ def create_question():
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
         new_category = body.get('category', None)
-        print("new_category", new_category)
         new_difficulty = body.get('difficulty', None)
         question = Question(question=new_question, answer=new_answer,
                             category=new_category, difficulty=new_difficulty)
@@ -131,11 +129,11 @@ def get_questionByCategory(id):
         id += 1
         questionsList = Question.query.filter(
             Question.category == str(id)).all()
+
         result = []
-        if len(questionsList) == 0:
-            abort(404)
         for question in questionsList:
             result.append(question.format())
+
         return jsonify({
             'success': True,
             'questions': result
@@ -145,7 +143,7 @@ def get_questionByCategory(id):
         abort(422)
 
 
-@app.route('n={', methods=["POST"])
+@app.route('/quizzes', methods=["POST"])
 def play_quiz():
     try:
 
@@ -162,8 +160,6 @@ def play_quiz():
             question = Question.query.filter(
                 Question.id.notin_(previous_questions)).filter(Question.category == str(id)).first()
         question = question.format()
-        print('previous_questions', previous_questions)
-        print('questions', question)
         return jsonify({
             'success': True,
             'question': question
