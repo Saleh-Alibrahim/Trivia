@@ -34,8 +34,8 @@ def paginate_questions(request, selection):
 def after_request(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Credentials", "true")
-    response.headers.add("Access-Control-Allow-Methods",
-                         "GET,HEAD,OPTIONS,POST,PUT,DELETE")
+    response.headers.add('Access-Control-Allow-Methods',
+                         'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add("Access-Control-Allow-Headers",
                          "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
 
@@ -47,7 +47,7 @@ def after_request(response):
 '''
 
 
-@ app.route('/categories')
+@app.route('/categories')
 def retrieve_categories():
     try:
         categorysList = Category.query.order_by(Category.id).all()
@@ -74,7 +74,7 @@ def retrieve_categories():
       '''
 
 
-@ app.route('/questions')
+@app.route('/questions')
 def retrieve_questions():
     try:
         questionsList = Question.query.order_by(Question.id).all()
@@ -104,24 +104,14 @@ def delete_question(question_id):
             abort(404)
 
         question.delete()
-
-        return redirect(url_for('retrieve_questions'))
+        questions = retrieve_questions()
+        return questions
     except Exception as error:
         print(error)
         abort(422)
-    '''
-  @TODO:
-  Create an endpoint to POST a new question,
-  which will require the question and answer text,
-  category, and difficulty score.
-
-  TEST: When you submit a question on the "Add" tab,
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.
-  '''
 
 
-@ app.route('/questions', methods=["POST"])
+@app.route('/questions', methods=["POST"])
 def create_question():
     try:
         body = request.get_json()
@@ -132,20 +122,11 @@ def create_question():
         question = Question(question=new_question, answer=new_answer,
                             category=new_category, difficulty=new_difficulty)
         question.insert()
-        return redirect(url_for('retrieve_questions'))
+        questions = retrieve_questions()
+        return questions
     except Exception as error:
         print(error)
         abort(422)
-    '''
-  @TODO:
-  Create a POST endpoint to get questions based on a search term.
-  It should return any questions for whom the search term
-  is a substring of the question.
-
-  TEST: Search by any phrase. The questions list will update to include
-  only question that include that string within their question.
-  Try using the word "title" to start.
-  '''
 
 
 @ app.route('/questions/<string:word>', methods=["POST"])
@@ -178,6 +159,8 @@ def get_questionByWord(word):
 @app.route('/categories/<int:id>/questions', methods=["GET"])
 def get_questionByCategory(id):
     try:
+        print(id)
+
         questionsList = Question.query.order_by(Question.id).filter(
             Question.category == id).all()
         result = []
