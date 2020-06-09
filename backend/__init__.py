@@ -32,10 +32,13 @@ def paginate_questions(request, selection):
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Headers',
-                         'Content-Type,Authorization,true')
-    response.headers.add('Access-Control-Allow-Methods',
-                         'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    response.headers.add("Access-Control-Allow-Methods",
+                         "GET,HEAD,OPTIONS,POST,PUT,DELETE")
+    response.headers.add("Access-Control-Allow-Headers",
+                         "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+
     return response
 
 
@@ -44,7 +47,7 @@ def after_request(response):
 '''
 
 
-@app.route('/categories')
+@ app.route('/categories')
 def retrieve_categories():
     try:
         categorysList = Category.query.order_by(Category.id).all()
@@ -71,21 +74,21 @@ def retrieve_categories():
       '''
 
 
-@app.route('/questions')
+@ app.route('/questions')
 def retrieve_questions():
     try:
         questionsList = Question.query.order_by(Question.id).all()
         categorysList = Category.query.order_by(Category.id).all()
 
         current_questions = paginate_questions(request, questionsList)
-        current_categorysList = paginate_questions(request, categorysList)
         result = []
         for category in categorysList:
             result.append(category.format())
+        print(len(questionsList))
         return jsonify({
             'questions': current_questions,
-            'total_questions': len(current_questions),
-            'categories': "current_categorysList",
+            'total_questions': len(questionsList),
+            'categories': result,
             'current_category': "current_categorysList",
         })
     except Exception as error:
@@ -93,7 +96,7 @@ def retrieve_questions():
         abort(500)
 
 
-@app.route('/questions/<int:question_id>', methods=["DELETE"])
+@ app.route('/questions/<int:question_id>', methods=["DELETE"])
 def delete_question(question_id):
     try:
         question = Question.query.filter_by(id=question_id).one_or_none()
@@ -118,7 +121,7 @@ def delete_question(question_id):
   '''
 
 
-@app.route('/questions', methods=["POST"])
+@ app.route('/questions', methods=["POST"])
 def create_question():
     try:
         body = request.get_json()
@@ -134,18 +137,18 @@ def create_question():
         print(error)
         abort(422)
     '''
-  @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
-  is a substring of the question. 
+  @TODO:
+  Create a POST endpoint to get questions based on a search term.
+  It should return any questions for whom the search term
+  is a substring of the question.
 
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
+  TEST: Search by any phrase. The questions list will update to include
+  only question that include that string within their question.
+  Try using the word "title" to start.
   '''
 
 
-@app.route('/questions/<string:word>', methods=["POST"])
+@ app.route('/questions/<string:word>', methods=["POST"])
 def get_questionByWord(word):
     try:
         tag = f"%{word}%"
@@ -163,12 +166,12 @@ def get_questionByWord(word):
         print(error)
         abort(422)
     '''
-  @TODO: 
-  Create a GET endpoint to get questions based on category. 
+  @TODO:
+  Create a GET endpoint to get questions based on category.
 
-  TEST: In the "List" tab / main screen, clicking on one of the 
-  categories in the left column will cause only questions of that 
-  category to be shown. 
+  TEST: In the "List" tab / main screen, clicking on one of the
+  categories in the left column will cause only questions of that
+  category to be shown.
   '''
 
 
@@ -190,15 +193,15 @@ def get_questionByCategory(id):
         abort(422)
 
     '''
-  @TODO: 
-  Create a POST endpoint to get questions to play the quiz. 
-  This endpoint should take category and previous question parameters 
-  and return a random questions within the given category, 
-  if provided, and that is not one of the previous questions. 
+  @TODO:
+  Create a POST endpoint to get questions to play the quiz.
+  This endpoint should take category and previous question parameters
+  and return a random questions within the given category,
+  if provided, and that is not one of the previous questions.
 
   TEST: In the "Play" tab, after a user selects "All" or a category,
   one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
+  and shown whether they were correct or not.
   '''
 
 
@@ -219,9 +222,9 @@ def get_questionByCategory(id):
 #         print(error)
 #         abort(422)
     '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
+  @TODO:
+  Create error handlers for all expected errors
+  including 404 and 422.
   '''
 
 
