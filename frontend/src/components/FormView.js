@@ -10,7 +10,7 @@ class FormView extends Component {
       question: "",
       answer: "",
       difficulty: 1,
-      category: 1,
+      category: 0,
       categories: {}
     }
   }
@@ -20,7 +20,6 @@ class FormView extends Component {
       url: `/categories`,
       type: "GET",
       success: (result) => {
-        console.log('result :>> ', result);
         this.setState({ categories: result.categories })
         return;
       },
@@ -34,6 +33,7 @@ class FormView extends Component {
 
   submitQuestion = (event) => {
     event.preventDefault();
+    let categoryValue = Number(this.state.category) + 1
     $.ajax({
       url: '/questions',
       type: "POST",
@@ -43,7 +43,7 @@ class FormView extends Component {
         question: this.state.question,
         answer: this.state.answer,
         difficulty: this.state.difficulty,
-        category: this.state.category
+        category: categoryValue
       }),
       xhrFields: {
         withCredentials: true
@@ -51,6 +51,8 @@ class FormView extends Component {
       crossDomain: true,
       success: (result) => {
         document.getElementById("add-question-form").reset();
+        this.state.difficulty = 1
+        this.state.category = 0
         return;
       },
       error: (error) => {
@@ -89,7 +91,7 @@ class FormView extends Component {
           </label>
           <label>
             Category
-            <select name="category" onChange={this.handleChange}>
+            <select name="category" onClick={this.handleChange} onChange={this.handleChange}>
               {Object.keys(this.state.categories).map(id => {
                 return (
                   <option key={id} value={id}>{this.state.categories[id]}</option>
