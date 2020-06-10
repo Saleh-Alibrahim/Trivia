@@ -46,8 +46,7 @@ def retrieve_categories():
         return jsonify({
             'categories': result
         })
-    except Exception as error:
-        print(error)
+    except:
         abort(500)
 
 
@@ -65,10 +64,9 @@ def retrieve_questions():
             'questions': current_questions,
             'total_questions': len(questionsList),
             'categories': result,
-            'current_category': "current_categorysList",
+            'current_category': " ",
         })
-    except Exception as error:
-        print(error)
+    except:
         abort(500)
 
 
@@ -81,26 +79,27 @@ def delete_question(question_id):
         question.delete()
         questions = retrieve_questions()
         return questions
-    except Exception as error:
-        print(error)
+    except:
         abort(405)
 
 
 @app.route('/questions', methods=["POST"])
 def create_question():
     try:
+
         body = request.get_json()
+        if body is None:
+            abort(422)
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
-        new_category = body.get('category', None)
+        new_category = body.get('category', 'no category')
         new_difficulty = body.get('difficulty', None)
         question = Question(question=new_question, answer=new_answer,
                             category=new_category, difficulty=new_difficulty)
         question.insert()
         questions = retrieve_questions()
         return questions
-    except Exception as error:
-        print(error)
+    except:
         abort(422)
 
 
@@ -116,9 +115,8 @@ def get_questionByWord(word):
             'questions': current_questions,
             'total_questions': len(current_questions)
         })
-    except Exception as error:
-        print(error)
-        abort(422)
+    except:
+        abort(404)
 
 
 @app.route('/categories/<int:id>/questions', methods=["GET"])
@@ -132,9 +130,8 @@ def get_questionByCategory(id):
             'success': True,
             'questions': current_questions
         })
-    except Exception as error:
-        print(error)
-        abort(422)
+    except:
+        abort(400)
 
 
 @app.route('/quizzes', methods=["POST"])
@@ -143,16 +140,13 @@ def play_quiz():
 
         body = request.get_json()
         previous_questions = body.get('previous_questions')
-
         quiz_category = body.get('quiz_category')
-        print('quiz_category', quiz_category)
         question = ''
         if str(quiz_category['type']) == 'click':
             question = Question.query.filter(
                 Question.id.notin_(previous_questions)).first()
         else:
             id = int(quiz_category['id']) + 1
-            print('id ', id)
             question = Question.query.filter(
                 Question.id.notin_(previous_questions)).filter(Question.category == str(id)).first()
 
@@ -162,9 +156,8 @@ def play_quiz():
             'success': True,
             'question': question
         })
-    except Exception as error:
-        print(error)
-        abort(422)
+    except:
+        abort(400)
 
 
 @app.errorhandler(404)
