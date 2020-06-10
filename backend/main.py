@@ -151,15 +151,19 @@ def play_quiz():
         previous_questions = body.get('previous_questions')
 
         quiz_category = body.get('quiz_category')
+        print('quiz_category', quiz_category)
         question = ''
-        if int(quiz_category['id']) == 0:
+        if str(quiz_category['type']) == 'click':
             question = Question.query.filter(
                 Question.id.notin_(previous_questions)).first()
         else:
             id = int(quiz_category['id']) + 1
+            print('id ', id)
             question = Question.query.filter(
                 Question.id.notin_(previous_questions)).filter(Question.category == str(id)).first()
-        question = question.format()
+
+        if question is not None:
+            question = question.format()
         return jsonify({
             'success': True,
             'question': question
