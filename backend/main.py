@@ -110,13 +110,11 @@ def get_questionByWord(word):
         tag = f"%{word}%"
         questionsList = Question.query.order_by(Question.id).filter(
             Question.question.like(tag)).all()
-        result = []
-        for question in questionsList:
-            result.append(question.format())
+        current_questions = paginate_questions(request, questionsList)
         return jsonify({
             'success': True,
-            'questions': result,
-            'total_questions': len(result)
+            'questions': current_questions,
+            'total_questions': len(current_questions)
         })
     except Exception as error:
         print(error)
@@ -129,14 +127,10 @@ def get_questionByCategory(id):
         id += 1
         questionsList = Question.query.filter(
             Question.category == str(id)).all()
-
-        result = []
-        for question in questionsList:
-            result.append(question.format())
-
+        current_questions = paginate_questions(request, questionsList)
         return jsonify({
             'success': True,
-            'questions': result
+            'questions': current_questions
         })
     except Exception as error:
         print(error)
