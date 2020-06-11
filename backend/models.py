@@ -1,5 +1,5 @@
 # import os
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 # import json
 
@@ -15,7 +15,10 @@ def setup_db(app, database_path=database_path, test=False):
     db.app = app
     db.init_app(app)
     if test:
-        db.drop_all()
+        # source https://stackoverflow.com/questions/35918605/how-to-delete-a-table-in-sqlalchemy
+        engine = create_engine(database_path)
+        Category.__table__.drop(engine)
+        Question.__table__.drop(engine)
     db.create_all()
 
 
@@ -75,6 +78,10 @@ class Category(db.Model):
 
     def __init__(self, type):
         self.type = type
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
 
     def format(self):
         return self.type

@@ -23,11 +23,12 @@ class TriviaTestCase(unittest.TestCase):
             "difficulty": 3,
             "question": "How many seconds in 1 hour ?",
         }
-        with self.app.app_context():
-            self.db = SQLAlchemy()
-            self.db.init_app(self.app)
-            # create all tables
-            self.db.create_all()
+
+        # with self.app.app_context():
+        #     self.db = SQLAlchemy()
+        #     self.db.init_app(self.app)
+        #     # create all tables
+        #     self.db.create_all()
 
     def tearDown(self):
         """Executed after reach test"""
@@ -38,7 +39,18 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
 
+    def test_retrieve_questions_fail(self):
+        res = self.client().get('/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+
     def test_retrieve_categories(self):
+
+        res = self.client().get('/categories')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+
+    def test_retrieve_categories_fail(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
@@ -81,6 +93,27 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_get_question_search_fail(self):
         res = self.client().post('/questions/nothing')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(len(data['questions']), 0)
+
+    def test_get_question_category(self):
+
+        category = Category(type='sports')
+        category.insert()
+
+        question = Question(question=self.new_question['question'], answer="self.new_question['answer']",
+                            category=self.new_question['category'], difficulty=self.new_question['difficulty'])
+        question.insert()
+        res = self.client().get(f'/categories/0/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(len(data['questions']), 1)
+
+    def test_get_question_category_fail(self):
+        res = self.client().get(f'/categories/1000/questions')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)

@@ -108,7 +108,7 @@ def get_questionByWord(word):
     try:
         tag = f"%{word}%"
         questionsList = Question.query.order_by(Question.id).filter(
-            Question.question.like(tag)).all()
+            Question.question.ilike(tag)).all()
         current_questions = paginate_questions(request, questionsList)
         return jsonify({
             'success': True,
@@ -123,6 +123,7 @@ def get_questionByWord(word):
 def get_questionByCategory(id):
     try:
         id += 1
+        id = 1
         questionsList = Question.query.filter(
             Question.category == str(id)).all()
         current_questions = paginate_questions(request, questionsList)
